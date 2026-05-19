@@ -1,44 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { API_BASE, SOCKET_URL, apiRequest } from '../lib/api';
 
 /* ─── API CONFIG ────────────────────────────────────────────────────── */
-// Use proxy in development, direct API in production
-const API_BASE = import.meta.env.DEV ? '/api' : `${window.location.protocol}//${window.location.hostname}:4000/api`;
-
-const apiRequest = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('token');
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
-    ...options,
-  };
-
-  const response = await fetch(`${API_BASE}${endpoint}`, config);
-
-  if (!response.ok) {
-    const contentType = response.headers.get('content-type') || '';
-    const error = contentType.includes('application/json')
-      ? await response.json().catch(() => ({}))
-      : { error: await response.text().catch(() => '') };
-
-    console.error('API Error:', error); // Log full error details
-    if (error.details) {
-      console.error('Validation Details:', error.details); // Log validation details
-      console.error('Validation Details JSON:', JSON.stringify(error.details, null, 2)); // Stringify for clarity
-    }
-
-    const details = Array.isArray(error.details) ? error.details : [];
-    const apiError = new Error(details[0]?.msg || error.error || error.message || `Request failed with status ${response.status}`);
-    apiError.status = response.status;
-    apiError.details = details;
-    throw apiError;
-  }
-
-  return response.json();
-};
 
 export const CATEGORIES = [
   { id:'electronics', label:'Electronics', icon:'📱', sub:['Laptops','Phones','Headphones','Chargers','Accessories'] },
@@ -253,7 +217,7 @@ export function AppProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) return undefined;
 
-    const socket = io('/', {
+    const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
     });

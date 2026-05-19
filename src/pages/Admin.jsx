@@ -6,6 +6,7 @@ import {
   ChevronRight, UserCheck, UserX, TrendingUp, Activity
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { apiUrl, authHeaders } from '../lib/api';
 
 const AdminDashboard = () => {
   const { user } = useApp();
@@ -40,10 +41,8 @@ const AdminDashboard = () => {
   const loadDashboard = async () => {
     try {
       if (canManageUsers) {
-        const statsResponse = await fetch('/api/admin/stats', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+        const statsResponse = await fetch(apiUrl('/admin/stats'), {
+          headers: authHeaders(),
         });
         const statsData = await statsResponse.json();
         setStats(statsData);
@@ -63,10 +62,8 @@ const AdminDashboard = () => {
 
   const loadUsers = async (page = 1, search = '') => {
     try {
-      const response = await fetch(`/api/admin/users?page=${page}&limit=20&search=${search}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(apiUrl(`/admin/users?page=${page}&limit=20&search=${search}`), {
+        headers: authHeaders(),
       });
       const data = await response.json();
       setUsers(data.users);
@@ -79,10 +76,8 @@ const AdminDashboard = () => {
 
   const loadListings = async (page = 1, search = '') => {
     try {
-      const response = await fetch(`/api/admin/listings?page=${page}&limit=20&search=${search}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(apiUrl(`/admin/listings?page=${page}&limit=20&search=${search}`), {
+        headers: authHeaders(),
       });
       const data = await response.json();
       setListings(data.listings);
@@ -109,12 +104,11 @@ const AdminDashboard = () => {
 
   const handleUserAction = async (userId, action, value) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await fetch(apiUrl(`/admin/users/${userId}`), {
         method: 'PUT',
-        headers: {
+        headers: authHeaders({
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        }),
         body: JSON.stringify({ [action]: value })
       });
 
@@ -133,12 +127,11 @@ const AdminDashboard = () => {
 
   const handleListingAction = async (listingId, action, value) => {
     try {
-      const response = await fetch(`/api/admin/listings/${listingId}`, {
+      const response = await fetch(apiUrl(`/admin/listings/${listingId}`), {
         method: 'PUT',
-        headers: {
+        headers: authHeaders({
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        }),
         body: JSON.stringify({ [action]: value })
       });
 
@@ -159,11 +152,9 @@ const AdminDashboard = () => {
     if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
 
     try {
-      const response = await fetch(`/api/admin/${type}s/${id}`, {
+      const response = await fetch(apiUrl(`/admin/${type}s/${id}`), {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authHeaders(),
       });
 
       if (response.ok) {

@@ -7,6 +7,7 @@ import {
   AlertTriangle, ExternalLink, Copy
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { apiUrl } from '../lib/api';
 import ListingCard from '../components/ListingCard';
 
 export default function ProductDetail() {
@@ -44,7 +45,7 @@ export default function ProductDetail() {
 
     const loadListingDetail = async () => {
       try {
-        const response = await fetch(`/api/listings/${id}`);
+        const response = await fetch(apiUrl(`/listings/${id}`));
         if (!response.ok) return;
 
         const data = await response.json();

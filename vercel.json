@@ -1,0 +1,11 @@
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!api|socket.io|uploads).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
